@@ -13,7 +13,4 @@ addpath('pics');
 % a = a/2;
 % imshow(a);
 
-hdr = hdrread('hdr_image.hdr');
-
-t = tonemap(hdr);
-imshow(t);
+hdr = 
