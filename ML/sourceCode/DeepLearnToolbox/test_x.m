@@ -15,8 +15,8 @@ end
 sz = size(imread([path '/' files(1).name]));
 r = sz(1);
 c = sz(2);
-I = zeros(r,c,N);
-trainset_x = zeros(r*c, N);
+I = zeros(r,c,3*N);
+trainset_x = zeros(r*c, 3*N);
 
 %% read all files
 for i = 1:N
@@ -33,16 +33,16 @@ for i = 1:N
 %         im = imresize(im,[r c],'bicubic');
 %     end
     
-    im = rgb2gray(im);
-    I(:,:,i) = im(:,:,1);
+%     im = rgb2gray(im);
+    I(:,:,3*i-2:3*i) = im(:,:,:);
     im = im(:,:,1);
     
     trainset_x(:,i) = im(:);
 
 end
 
-yim = rgb2gray(double(imread('qinshi_middle.jpg'))/255);
-trainset_y = yim(:);
+yim = double(imread('qinshi_middle.jpg'))/255;
+trainset_y = reshape(yim, r*c, 3);
 
 % normalize
 % [trainset_x, mu, sigma] = zscore(trainset_x);
@@ -50,7 +50,7 @@ trainset_y = yim(:);
 
 rand('state',0);
 
-nn = nnsetup([13 1]);
+nn = nnsetup([39 40 40 20 20 10 10 5 5 3]);
 
 nn.activation_function = 'sigm';    %  Sigmoid activation function
 nn.learningRate = 1;                %  Sigm require a lower learning rate
@@ -61,24 +61,24 @@ opts.batchsize = 32;  %  Take a mean gradient step over this many samples
 
 %%
 % trainset_x;
-im_out = zeros(r, c);
-x = zeros(1,13);
-% for i = 1:r
-%     for j = 1:c
-%         x(:) = I(i, j, :);
-%         x = x - 0.5;
-%         nn = nnff(nn, x, zeros(size(x,1), nn.size(end)));
-%         im_out(i,j) = nn.a{end};
-%     end
-% end
-
-lout = zeros(r*c, 1);
-for i = 1:r*c
-    x(:) = trainset_x(i,:);
-    nn = nnff(nn, x, zeros(size(x,1), nn.size(end)));
-    lout(i) = nn.a{end};
+im_out = zeros(r, c, 3);
+x = zeros(1,39);
+for i = 1:r
+    for j = 1:c
+        x(:) = I(i, j, :);
+        x = x - 0.5;
+        nn = nnff(nn, x, zeros(size(x,1), nn.size(end)));
+        im_out(i,j, :) = nn.a{end};
+    end
 end
-im_out = reshape(lout, r, c);
+
+% lout = zeros(r*c, 1);
+% for i = 1:r*c
+%     x(:) = trainset_x(i,:);
+%     nn = nnff(nn, x, zeros(size(x,1), nn.size(end)));
+%     lout(i) = nn.a{end};
+% end
+% im_out = reshape(lout, r, c);
 
 subplot(121);
 imshow(yim)
