@@ -133,3 +133,13 @@ plot(ctrs(:,1),ctrs(:,2),'ko','MarkerSize',12,'LineWidth',2)
 legend('Cluster 1','Cluster 2','Centroids','Location','NW')
 
 figure, hist(hr, 200);
+
+%% test normal picture 2 hdr
+
+pic = imread('.\pics\sat.png');
+Mx = max(max(max(pic)));
+pic = double(pic) ./ double(Mx);
+pic(300, 200, 1)
+imshow(pic);
+hdr = GammaTMO(pic, 0.01, 0, 1);
+figure, imshow(hdr);
